@@ -6,7 +6,7 @@ import {
   IsUUID,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { AssetStatus } from '../../util/enum/asset-status.enum';
+import { AssetStatus } from '../../../util/enum/asset-status.enum';
 
 export class CreateAssetDto {
   @ApiProperty({

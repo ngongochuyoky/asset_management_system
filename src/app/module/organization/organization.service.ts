@@ -7,18 +7,18 @@ import Organization from '../entity/organization.entity';
 export default class OrganizationService {
   constructor(
     @InjectRepository(Organization)
-    private readonly organizationRepository: Repository<Organization>,
+    readonly repository: Repository<Organization>,
   ) {}
 
   async findAllOrganizations() {
-    return await this.organizationRepository.find();
+    return await this.repository.find();
   }
 
   async findOrganizationById(id: number) {
-    return await this.organizationRepository.findOne(id);
+    return await this.repository.findOne(id);
   }
 
   async deleteOrganization(id: number) {
-    await this.organizationRepository.delete(id);
+    await this.repository.delete(id);
   }
 }

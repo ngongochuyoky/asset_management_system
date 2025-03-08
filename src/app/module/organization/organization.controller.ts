@@ -7,7 +7,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import OrganizationService from '../services/organization.service';
+import OrganizationService from './organization.service';
 
 @ApiTags('organizations')
 @Controller('/api/v1/organizations')

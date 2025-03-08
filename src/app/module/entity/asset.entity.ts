@@ -7,8 +7,8 @@ import {
   UpdateDateColumn,
   JoinColumn,
 } from 'typeorm';
-import Location from './location.entity';
 import { AssetStatus } from '../../util/enum/asset-status.enum';
+import Location from './location.entity';
 
 @Entity('assets')
 export default class Asset {

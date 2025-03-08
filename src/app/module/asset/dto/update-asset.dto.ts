@@ -1,6 +1,6 @@
-import { IsString, IsOptional, IsEnum, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { AssetStatus } from '../../util/enum/asset-status.enum';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { AssetStatus } from '../../../util/enum/asset-status.enum';
 
 export class UpdateAssetDto {
   @ApiProperty({
@@ -32,10 +32,10 @@ export class UpdateAssetDto {
 
   @ApiProperty({
     description: 'Location ID of the asset',
-    type: String,
+    type: Number,
     required: false,
   })
-  @IsUUID()
   @IsOptional()
-  locationId?: string;
+  @IsNumber()
+  locationId?: number;
 }

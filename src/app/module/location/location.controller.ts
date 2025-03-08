@@ -7,7 +7,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import LocationService from '../services/location.service';
+import LocationService from './location.service';
 
 @ApiTags('locations')
 @Controller('/api/v1/locations')
