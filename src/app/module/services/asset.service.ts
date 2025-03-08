@@ -7,6 +7,8 @@ import { Cron } from '@nestjs/schedule';
 import Location from '../entity/location.entity';
 import * as dotenv from 'dotenv';
 import { AssetStatus } from '../../util/enum/asset-status.enum';
+import { CreateAssetDto } from '../dto/create-asset.dto';
+import { UpdateAssetDto } from '../dto/update-asset.dto';
 
 dotenv.config(); // Load biến môi trường từ .env
 
@@ -23,6 +25,31 @@ export default class AssetService {
 
   async findAllAssets(findAllOptions: FindManyOptions<Asset>) {
     return await this.assetRepository.find(findAllOptions);
+  }
+
+  async findAssetBySerial(serial: string) {
+    return await this.assetRepository.findOne({
+      where: { serial },
+      relations: ['location', 'location.organization'],
+    });
+  }
+
+  async createAsset(assetData: Partial<CreateAssetDto>) {
+    const asset = this.assetRepository.create(assetData);
+    return await this.assetRepository.save(asset);
+  }
+
+  async updateAsset(serial: string, assetData: Partial<UpdateAssetDto>) {
+    await this.assetRepository.update({ serial }, assetData);
+    return this.findAssetBySerial(serial);
+  }
+
+  async deleteAsset(serial: string) {
+    const asset = await this.findAssetBySerial(serial);
+    if (!asset) {
+      throw new Error('Asset not found');
+    }
+    return await this.assetRepository.remove(asset);
   }
 
   @Cron('0 0 * * *') // Chạy lúc 00:00 mỗi ngày

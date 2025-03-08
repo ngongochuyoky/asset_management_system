@@ -1,38 +1,25 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsEnum,
-  IsUUID,
-} from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { AssetStatus } from '../../util/enum/asset-status.enum';
 
-export class CreateAssetDto {
+export class UpdateAssetDto {
   @ApiProperty({
     description: 'Type of the asset',
     type: String,
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  type!: string;
-
-  @ApiProperty({
-    description: 'Unique serial number of the asset',
-    type: String,
-  })
-  @IsString()
-  @IsNotEmpty()
-  serial!: string;
+  @IsOptional()
+  type?: string;
 
   @ApiProperty({
     description: 'Status of the asset',
     enum: AssetStatus,
-    default: AssetStatus.ACTIVE,
+    required: false,
   })
   @IsEnum(AssetStatus)
   @IsOptional()
-  status: AssetStatus = AssetStatus.ACTIVE;
+  status?: AssetStatus;
 
   @ApiProperty({
     description: 'Description of the asset',
@@ -46,7 +33,9 @@ export class CreateAssetDto {
   @ApiProperty({
     description: 'Location ID of the asset',
     type: String,
+    required: false,
   })
   @IsUUID()
-  locationId!: string;
+  @IsOptional()
+  locationId?: string;
 }
