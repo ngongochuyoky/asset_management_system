@@ -14,8 +14,7 @@ export class CronJobService {
     private locationService: LocationService,
   ) {}
 
-  //   @Cron('0 0 * * *') // Chạy lúc 00:00 mỗi ngày
-  @Cron('*/5 * * * * *') // Mỗi giây
+  @Cron('0 0 * * *') // Chạy lúc 00:00 mỗi ngày
   async syncAssetsFromAPI() {
     console.log('🚀 Starting asset synchronization...');
     if (!this.assetApiUrl) {
