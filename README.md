@@ -3,6 +3,8 @@
 ## 📌 Giới thiệu
 Đây là hệ thống quản lý tài sản sử dụng **NestJS** và **TypeORM** với **PostgreSQL**.
 
+🔗 **API Documentation:** [⚡ Truy cập ngay Swagger API](https://asset-management-system.eduteck.online/api/v1)  
+
 ## 🚀 Cài đặt
 ### 1️⃣ Clone dự án
 ```sh
@@ -52,9 +54,8 @@ npm run start
 
 ## ✅ Kiểm tra API
 Ứng dụng sẽ chạy trên `http://localhost:3000`. Bạn có thể kiểm tra API qua **Postman** hoặc **Swagger** tại:
-```
-http://localhost:3000/api/v1
-```
+
+🚀 **Swagger API:** [👉 Truy cập ngay](http://localhost:3000/api/v1)
 
 ---
 
@@ -65,5 +66,5 @@ npm run db:migration:revert
 ```
 
 ## 💡 Góp ý & Hỗ trợ
-Nếu bạn gặp vấn đề, vui lòng tạo issue trên GitHub hoặc liên hệ qua email `huyngo.05042000@gmail.com`.
+Nếu bạn gặp vấn đề, vui lòng tạo issue trên GitHub hoặc liên hệ qua email 📩 `huyngo.05042000@gmail.com`. 🚀
 
