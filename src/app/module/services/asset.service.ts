@@ -5,9 +5,15 @@ import Asset from '../entity/asset.entity';
 import axios from 'axios';
 import { Cron } from '@nestjs/schedule';
 import Location from '../entity/location.entity';
+import * as dotenv from 'dotenv';
+import { AssetStatus } from '../../util/enum/asset-status.enum';
+
+dotenv.config(); // Load biến môi trường từ .env
 
 @Injectable()
 export default class AssetService {
+  private readonly assetApiUrl = process.env.ASSET_API_URL || '';
+
   constructor(
     @InjectRepository(Asset)
     private readonly assetRepository: Repository<Asset>,
@@ -22,70 +28,69 @@ export default class AssetService {
   @Cron('0 0 * * *') // Chạy lúc 00:00 mỗi ngày
   async syncAssetsFromAPI() {
     console.log('🚀 Starting asset synchronization...');
+    if (!this.assetApiUrl) {
+      console.error('ASSET_API_URL is not set in .env file');
+      return;
+    }
+
     const queryRunner =
       this.assetRepository.manager.connection.createQueryRunner();
     await queryRunner.startTransaction();
 
     try {
-      const response = await axios.get(
-        'https://669ce22d15704bb0e304842d.mockapi.io/assets',
-      );
+      const response = await axios.get(this.assetApiUrl);
 
       // Kiểm tra status của API trước khi tiếp tục
       if (response.status !== 200) {
-        console.error(`❌ API Error: Received status ${response.status}`);
+        console.error(`API Error: Received status ${response.status}`);
         return;
       }
 
       const assets = response.data;
       if (!Array.isArray(assets)) {
-        console.error('❌ API Error: Invalid data format');
+        console.error('API Error: Invalid data format');
         return;
       }
 
-      // Lấy danh sách location ID hợp lệ trong database
       const locations = await this.locationRepository.find();
       const validLocationIds = new Set(locations.map((loc) => loc.id));
 
-      // Tạo một tập hợp để lưu các serial đã thấy trước đó (handling seen migration data)
-      const seenSerials = new Set<string>();
+      const assetEntities: Asset[] = [];
 
       for (const asset of assets) {
-        const createdAt = new Date(asset.created_at * 1000); // Chuyển từ timestamp
+        const createdAt = new Date(asset.created_at * 1000);
         const updatedAt = new Date(asset.updated_at * 1000);
 
         if (
-          asset.status === 'active' &&
-          createdAt < new Date() && // Chỉ sync asset được tạo trong quá khứ
-          validLocationIds.has(asset.location_id) && // Chỉ sync nếu location tồn tại
-          !seenSerials.has(asset.serial) // Tránh xử lý trùng lặp
+          asset.status === 'actived' &&
+          createdAt < new Date() &&
+          validLocationIds.has(asset.location_id)
         ) {
-          seenSerials.add(asset.serial); // Đánh dấu asset đã xử lý
+          console.log(`Processing asset: ${asset.serial}`);
 
-          const existingAsset = await this.assetRepository.findOne({
-            where: { serial: asset.serial },
+          const assetEntity = this.assetRepository.create({
+            type: asset.type,
+            serial: asset.serial,
+            status: AssetStatus.ACTIVE,
+            description: asset.description,
+            location: { id: asset.location_id },
+            createdAt,
+            updatedAt,
           });
 
-          if (!existingAsset) {
-            await this.assetRepository.save({
-              id: asset.id,
-              type: asset.type,
-              serial: asset.serial,
-              status: asset.status,
-              description: asset.description,
-              location: { id: asset.location_id }, // Gán location theo ID
-              createdAt,
-              updatedAt,
-            });
-          }
+          assetEntities.push(assetEntity);
         }
       }
 
+      if (assetEntities.length > 0) {
+        await this.assetRepository.upsert(assetEntities, ['serial']);
+      }
+
       await queryRunner.commitTransaction();
-      console.log('✅ Asset synchronization completed successfully.');
+      console.log('Asset synchronization completed successfully.');
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.error('❌ Error during asset synchronization:', error);
+      console.error('Error during asset synchronization:', error);
     } finally {
       await queryRunner.release();
     }

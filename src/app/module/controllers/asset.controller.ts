@@ -1,4 +1,11 @@
-import { Get, Controller, HttpCode, HttpStatus, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Get,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import AssetService from '../services/asset.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
