@@ -6,16 +6,15 @@ import Location from '../entity/location.entity';
 @Injectable()
 export default class LocationService {
   constructor(
-    @InjectRepository(Location)
-    private readonly locationRepository: Repository<Location>,
+    @InjectRepository(Location) readonly repository: Repository<Location>,
   ) {}
 
   async findAllLocations() {
-    return await this.locationRepository.find();
+    return await this.repository.find();
   }
 
   async findLocationById(id: number) {
-    return await this.locationRepository.findOne(id);
+    return await this.repository.findOne(id);
   }
 
   async deleteLocation(id: number) {
@@ -23,6 +22,6 @@ export default class LocationService {
     if (!location) {
       throw new Error('Location not found');
     }
-    return await this.locationRepository.remove(location);
+    return await this.repository.remove(location);
   }
 }

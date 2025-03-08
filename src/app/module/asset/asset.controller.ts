@@ -7,12 +7,12 @@ import {
   HttpStatus,
   Param,
   Post,
-  Put
+  Put,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateAssetDto } from '../dto/create-asset.dto';
-import { UpdateAssetDto } from '../dto/update-asset.dto';
-import AssetService from '../services/asset.service';
+import { CreateAssetDto } from './dto/create-asset.dto';
+import { UpdateAssetDto } from './dto/update-asset.dto';
+import AssetService from './asset.service';
 
 @ApiTags('assets')
 @Controller('/api/v1/assets')

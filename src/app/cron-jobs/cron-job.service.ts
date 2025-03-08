@@ -1,58 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions } from 'typeorm';
-import Asset from '../entity/asset.entity';
-import axios from 'axios';
 import { Cron } from '@nestjs/schedule';
-import Location from '../entity/location.entity';
-import * as dotenv from 'dotenv';
-import { AssetStatus } from '../../util/enum/asset-status.enum';
-import { CreateAssetDto } from '../dto/create-asset.dto';
-import { UpdateAssetDto } from '../dto/update-asset.dto';
-
-dotenv.config(); // Load biến môi trường từ .env
+import axios from 'axios';
+import AssetService from '../module/asset/asset.service';
+import Asset from '../module/entity/asset.entity';
+import LocationService from '../module/location/location.service';
+import { AssetStatus } from '../util/enum/asset-status.enum';
 
 @Injectable()
-export default class AssetService {
+export class CronJobService {
   private readonly assetApiUrl = process.env.ASSET_API_URL || '';
-
   constructor(
-    @InjectRepository(Asset)
-    private readonly assetRepository: Repository<Asset>,
-    @InjectRepository(Location)
-    private readonly locationRepository: Repository<Location>,
+    private assetService: AssetService,
+    private locationService: LocationService,
   ) {}
 
-  async findAllAssets(findAllOptions: FindManyOptions<Asset>) {
-    return await this.assetRepository.find(findAllOptions);
-  }
-
-  async findAssetBySerial(serial: string) {
-    return await this.assetRepository.findOne({
-      where: { serial },
-      relations: ['location', 'location.organization'],
-    });
-  }
-
-  async createAsset(assetData: Partial<CreateAssetDto>) {
-    const asset = this.assetRepository.create(assetData);
-    return await this.assetRepository.save(asset);
-  }
-
-  async updateAsset(serial: string, assetData: Partial<UpdateAssetDto>) {
-    await this.assetRepository.update({ serial }, assetData);
-    return this.findAssetBySerial(serial);
-  }
-
-  async deleteAsset(serial: string) {
-    const asset = await this.findAssetBySerial(serial);
-    if (!asset) {
-      throw new Error('Asset not found');
-    }
-    return await this.assetRepository.remove(asset);
-  }
-
-  @Cron('0 0 * * *') // Chạy lúc 00:00 mỗi ngày
+  //   @Cron('0 0 * * *') // Chạy lúc 00:00 mỗi ngày
+  @Cron('*/5 * * * * *') // Mỗi giây
   async syncAssetsFromAPI() {
     console.log('🚀 Starting asset synchronization...');
     if (!this.assetApiUrl) {
@@ -61,7 +24,7 @@ export default class AssetService {
     }
 
     const queryRunner =
-      this.assetRepository.manager.connection.createQueryRunner();
+      this.assetService.repository.manager.connection.createQueryRunner();
     await queryRunner.startTransaction();
 
     try {
@@ -79,7 +42,7 @@ export default class AssetService {
         return;
       }
 
-      const locations = await this.locationRepository.find();
+      const locations = await this.locationService.repository.find();
       const validLocationIds = new Set(locations.map((loc) => loc.id));
 
       const assetEntities: Asset[] = [];
@@ -95,7 +58,7 @@ export default class AssetService {
         ) {
           console.log(`Processing asset: ${asset.serial}`);
 
-          const assetEntity = this.assetRepository.create({
+          const assetEntity = this.assetService.repository.create({
             type: asset.type,
             serial: asset.serial,
             status: AssetStatus.ACTIVE,
@@ -110,7 +73,7 @@ export default class AssetService {
       }
 
       if (assetEntities.length > 0) {
-        await this.assetRepository.upsert(assetEntities, ['serial']);
+        await this.assetService.repository.upsert(assetEntities, ['serial']);
       }
 
       await queryRunner.commitTransaction();
