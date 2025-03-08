@@ -7,6 +7,8 @@ import { AssetController } from './controllers/asset.controller';
 import Asset from './entity/asset.entity';
 import Organization from './entity/organization.entity';
 import Location from './entity/location.entity';
+import { LocationController } from './controllers/location.controller';
+import { OrganizationController } from './controllers/organization.controller';
 
 export const ALL_ENTITIES = fs
   .readdirSync(path.join(path.dirname(__filename), 'entity'))
@@ -29,6 +31,6 @@ export const ALL_SERVICES = fs
   ],
   providers: [...ALL_SERVICES],
   exports: [...ALL_SERVICES],
-  controllers: [AssetController],
+  controllers: [AssetController, LocationController, OrganizationController],
 })
 export class DomainModule {}
