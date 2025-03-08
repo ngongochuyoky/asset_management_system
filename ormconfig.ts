@@ -10,13 +10,13 @@ module.exports = {
     : false,
   logging: true,
   entities: [
-    'dist/src/app/domain/entities/**/*.js',
+    'dist/app/domain/entities/**/*.js',
   ],
   migrations: [
-    'dist/src/migrations/**/*.js',
+    'dist/migrations/**/*.js',
   ],
   subscribers: [
-    'dist/src/subscriber/**/*.js',
+    'dist/subscriber/**/*.js',
   ],
   cli: {
     entitiesDir: 'src/app/domain/entities',
