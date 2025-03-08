@@ -8,6 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import Location from './location.entity';
+import { AssetStatus } from '../../util/enum/asset-status.enum';
 
 @Entity('assets')
 export default class Asset {
@@ -20,8 +21,8 @@ export default class Asset {
   @Column({ type: 'varchar', length: 50, unique: true })
   serial!: string;
 
-  @Column({ type: 'enum', enum: ['active', 'inactive'], default: 'active' })
-  status!: 'active' | 'inactive';
+  @Column({ type: 'enum', enum: AssetStatus, default: AssetStatus.ACTIVE })
+  status!: AssetStatus;
 
   @Column({ type: 'text', nullable: true })
   description?: string; // Có thể null nên dùng dấu `?`
